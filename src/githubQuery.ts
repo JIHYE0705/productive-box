@@ -11,5 +11,11 @@ export default async function(query: string) {
     }
   );
 
-  return res.json();
+  if (!res.ok) throw new Error(`GitHub GraphQL request failed (HTTP ${res.status})`);
+
+  const result = await res.json();
+  if (result.errors?.length) {
+    throw new Error(result.errors.map(error => error.message).join('; '));
+  }
+  return result;
 }
