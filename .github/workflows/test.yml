@@ -1,0 +1,30 @@
+name: Test productive box
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --global yarn@1.22.22
+      - run: yarn install --frozen-lockfile --ignore-scripts
+      - run: yarn lint
+      - run: yarn build
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+      - run: yarn test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: productive-box-bundle
+          path: dist/index.js
